@@ -1,7 +1,3 @@
 {
-    "functions": {
-      "testdata/**/*.rs": {
-        "runtime": "vercel-rust@4.0.7"
-      }
-    }
-  }
+    "buildCommand": "yarn build"
+}
