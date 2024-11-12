@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ExternalLink, Search, TrendingUp, Users, Award, Info, Clock, DollarSign, Repeat, BarChart3 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,14 +101,6 @@ const bounties = [
     },
 ];
 
-const projects = [
-    { id: 1, name: 'DeFi Swap', points: 1500 },
-    { id: 2, name: 'Hodl ETH', points: 1200 },
-    { id: 3, name: 'TOKEN Pump', points: 1000 },
-    { id: 4, name: 'BTC Swap', points: 950 },
-    { id: 5, name: 'TOKEN Volume', points: 1100 },
-];
-
 const bountyCategories: string[] = ['DAU Increase', 'Hodl Challenge', 'Pump Challenge', 'BTC Challenge', 'Volume Challenge'];
 
 interface Bounty {
@@ -153,116 +146,122 @@ function BountyCard({ bounty, showDetails = false }: BountyCardProps) {
     };
 
     return (
-        <Card className="w-full">
-            <CardHeader className="p-0">
-                <Image src={bounty.image} alt={bounty.title} width={400} height={200} className="w-full h-48 object-cover rounded-t-lg" />
-            </CardHeader>
-            <CardContent className="p-4">
-                <div className="flex justify-between items-center mb-2">
-                    <Badge variant="secondary">{bounty.type}</Badge>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                        {getCategoryIcon(bounty.category)}
-                        {bounty.category}
-                    </Badge>
-                    <span className="font-bold">{bounty.points} Points</span>
-                </div>
-                <CardTitle className="mb-2">{bounty.title}</CardTitle>
-                <CardDescription className="mb-4">{bounty.description}</CardDescription>
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center">
-                        <Image src={bounty.projectLogo} alt={bounty.projectName} width={32} height={32} className="mr-2 rounded-full" />
-                        <span>{bounty.projectName}</span>
+        <motion.div
+            className="w-full"
+            whileHover={{ scale: 1.05 }} // Add hover scaling effect
+            transition={{ duration: 0.3 }}
+        >
+            <Card className="w-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                <CardHeader className="p-0">
+                    <Image src={bounty.image} alt={bounty.title} width={400} height={200} className="w-full h-48 object-cover rounded-t-lg" />
+                </CardHeader>
+                <CardContent className="p-4">
+                    <div className="flex justify-between items-center mb-2">
+                        <Badge variant="secondary">{bounty.type}</Badge>
+                        <Badge variant="outline" className="flex items-center gap-1">
+                            {getCategoryIcon(bounty.category)}
+                            {bounty.category}
+                        </Badge>
+                        <span className="font-bold">{bounty.points} Points</span>
                     </div>
-                    <Button variant="outline" size="sm" asChild>
-                        <a href={bounty.projectUrl} target="_blank" rel="noopener noreferrer">
-                            View Project <ExternalLink className="ml-2 h-4 w-4" />
-                        </a>
-                    </Button>
-                </div>
-                {!showDetails && (
-                    <div className="flex gap-2">
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="outline" className="flex-1">
-                                    Details <Info className="ml-2 h-4 w-4" />
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-3xl">
-                                <DialogHeader>
-                                    <DialogTitle>{bounty.title}</DialogTitle>
-                                    <DialogDescription>Bounty Details</DialogDescription>
-                                </DialogHeader>
-                                <div className="mt-4">
-                                    <Image src={bounty.image} alt={bounty.title} width={800} height={400} className="w-full h-64 object-cover rounded-lg mb-4" />
-                                    <div className="flex items-center mb-4">
-                                        <Image src={bounty.projectLogo} alt={bounty.projectName} width={32} height={32} className="mr-2 rounded-full" />
-                                        <span className="font-bold">{bounty.projectName}</span>
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-4 mb-4">
-                                        <Card>
-                                            <CardHeader>
-                                                <CardTitle>Points</CardTitle>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-2xl font-bold">{bounty.points}</p>
-                                            </CardContent>
-                                        </Card>
-                                        <Card>
-                                            <CardHeader>
-                                                <CardTitle>Target</CardTitle>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-2xl font-bold">{bounty.target}</p>
-                                            </CardContent>
-                                        </Card>
-                                        <Card>
-                                            <CardHeader>
-                                                <CardTitle>Current</CardTitle>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-2xl font-bold">{bounty.currentMetric}</p>
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                    <p className="mb-4">{bounty.description}</p>
-                                    <div className="mb-4">
-                                        <p>
-                                            <strong>Contract Address:</strong> {bounty.contractAddress}
-                                        </p>
-                                        <p>
-                                            <strong>Function Name:</strong> {bounty.functionName}
-                                        </p>
-                                        {bounty.timeSet && (
-                                            <p>
-                                                <strong>Time Set:</strong> {bounty.timeSet}
-                                            </p>
-                                        )}
-                                        {bounty.targetPrice && (
-                                            <p>
-                                                <strong>Target Price:</strong> ${bounty.targetPrice.toFixed(2)}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Button asChild className="flex-1">
-                                            <a href={bounty.projectUrl} target="_blank" rel="noopener noreferrer">
-                                                View Project <ExternalLink className="ml-2 h-4 w-4" />
-                                            </a>
-                                        </Button>
-                                        <Button variant="outline" className="flex-1">
-                                            Claim Bounty <Award className="ml-2 h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                        <Button variant="outline" className="flex-1">
-                            Claim Bounty <Award className="ml-2 h-4 w-4" />
+                    <CardTitle className="mb-2">{bounty.title}</CardTitle>
+                    <CardDescription className="mb-4">{bounty.description}</CardDescription>
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center">
+                            <Image src={bounty.projectLogo} alt={bounty.projectName} width={32} height={32} className="mr-2 rounded-full" />
+                            <span>{bounty.projectName}</span>
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                            <a href={bounty.projectUrl} target="_blank" rel="noopener noreferrer">
+                                View Project <ExternalLink className="ml-2 h-4 w-4" />
+                            </a>
                         </Button>
                     </div>
-                )}
-            </CardContent>
-        </Card>
+                    {!showDetails && (
+                        <div className="flex gap-2">
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="flex-1">
+                                        Details <Info className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-3xl">
+                                    <DialogHeader>
+                                        <DialogTitle>{bounty.title}</DialogTitle>
+                                        <DialogDescription>Bounty Details</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="mt-4">
+                                        <Image src={bounty.image} alt={bounty.title} width={800} height={400} className="w-full h-64 object-cover rounded-lg mb-4" />
+                                        <div className="flex items-center mb-4">
+                                            <Image src={bounty.projectLogo} alt={bounty.projectName} width={32} height={32} className="mr-2 rounded-full" />
+                                            <span className="font-bold">{bounty.projectName}</span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-4 mb-4">
+                                            <Card>
+                                                <CardHeader>
+                                                    <CardTitle>Points</CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <p className="text-2xl font-bold">{bounty.points}</p>
+                                                </CardContent>
+                                            </Card>
+                                            <Card>
+                                                <CardHeader>
+                                                    <CardTitle>Target</CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <p className="text-2xl font-bold">{bounty.target}</p>
+                                                </CardContent>
+                                            </Card>
+                                            <Card>
+                                                <CardHeader>
+                                                    <CardTitle>Current</CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <p className="text-2xl font-bold">{bounty.currentMetric}</p>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                        <p className="mb-4">{bounty.description}</p>
+                                        <div className="mb-4">
+                                            <p>
+                                                <strong>Contract Address:</strong> {bounty.contractAddress}
+                                            </p>
+                                            <p>
+                                                <strong>Function Name:</strong> {bounty.functionName}
+                                            </p>
+                                            {bounty.timeSet && (
+                                                <p>
+                                                    <strong>Time Set:</strong> {bounty.timeSet}
+                                                </p>
+                                            )}
+                                            {bounty.targetPrice && (
+                                                <p>
+                                                    <strong>Target Price:</strong> ${bounty.targetPrice.toFixed(2)}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button asChild className="flex-1">
+                                                <a href={bounty.projectUrl} target="_blank" rel="noopener noreferrer">
+                                                    View Project <ExternalLink className="ml-2 h-4 w-4" />
+                                                </a>
+                                            </Button>
+                                            <Button variant="outline" className="flex-1">
+                                                Claim Bounty <Award className="ml-2 h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                            <Button variant="outline" className="flex-1">
+                                Claim Bounty <Award className="ml-2 h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </motion.div>
     );
 }
 
@@ -279,46 +278,39 @@ export default function QuestsPage() {
     );
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-6">Quests</h1>
-            <Tabs defaultValue="founder" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="founder">Founder Bounties</TabsTrigger>
-                    <TabsTrigger value="community">Community Bounties</TabsTrigger>
-                    <TabsTrigger value="leaderboard">Project Leaderboard</TabsTrigger>
+        <div className="p-6">
+            <Tabs defaultValue="tab1">
+                <TabsList className="mb-6">
+                    <TabsTrigger value="tab1">Bounties</TabsTrigger>
+                    <TabsTrigger value="tab2">My Bounties</TabsTrigger>
                 </TabsList>
-                <TabsContent value="founder" className="space-y-4">
-                    <h2 className="text-2xl font-bold mb-4">Popular Bounties</h2>
-                    <Carousel className="w-full max-w-5xl mx-auto">
-                        <CarouselContent className="-ml-2 md:-ml-4">
-                            {bounties.map((bounty, index) => (
-                                <CarouselItem key={bounty.id} className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3">
-                                    <div className="p-1">
-                                        <BountyCard bounty={bounty} />
-                                    </div>
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                    </Carousel>
-                    <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <TabsContent value="tab1">
+                    <div className="flex items-center gap-4 mb-6">
+                        <Input
+                            placeholder="Search Bounties"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-64"
+                        />
                         <Select value={selectedType} onValueChange={setSelectedType}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Filter by type" />
+                            <SelectTrigger className="w-40">
+                                <SelectValue placeholder="Select Type" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="All">All Types</SelectItem>
-                                <SelectItem value="Founder">Founder</SelectItem>
-                                <SelectItem value="Community">Community</SelectItem>
+                                <SelectItem value="All">All</SelectItem>
+                                <SelectItem value="DAU Increase">DAU Increase</SelectItem>
+                                <SelectItem value="Hodl Challenge">Hodl Challenge</SelectItem>
+                                <SelectItem value="Pump Challenge">Pump Challenge</SelectItem>
+                                <SelectItem value="BTC Challenge">BTC Challenge</SelectItem>
+                                <SelectItem value="Volume Challenge">Volume Challenge</SelectItem>
                             </SelectContent>
                         </Select>
                         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Filter by category" />
+                            <SelectTrigger className="w-40">
+                                <SelectValue placeholder="Select Category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="All">All Categories</SelectItem>
+                                <SelectItem value="All">All</SelectItem>
                                 {bountyCategories.map((category) => (
                                     <SelectItem key={category} value={category}>
                                         {category}
@@ -326,54 +318,14 @@ export default function QuestsPage() {
                                 ))}
                             </SelectContent>
                         </Select>
-                        <div className="relative flex-grow">
-                            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input placeholder="Search bounties..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-8" />
-                        </div>
                     </div>
-                    <div className="grid gap-6 md:grid-cols-2  lg:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredBounties.map((bounty) => (
                             <BountyCard key={bounty.id} bounty={bounty} />
                         ))}
                     </div>
                 </TabsContent>
-                <TabsContent value="community">
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {bounties
-                            .filter((bounty) => bounty.type === 'Community')
-                            .map((bounty) => (
-                                <BountyCard key={bounty.id} bounty={bounty} />
-                            ))}
-                    </div>
-                </TabsContent>
-                <TabsContent value="leaderboard">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Project Leaderboard</CardTitle>
-                            <CardDescription>Top projects by points earned</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <ul className="space-y-2">
-                                {projects
-                                    .sort((a, b) => b.points - a.points)
-                                    .map((project, index) => (
-                                        <li key={project.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
-                                            <span className="font-semibold">
-                                                {index + 1}. {project.name}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <Award className="mr-1 h-4 w-4 text-muted-foreground" />
-                                                {project.points} points
-                                            </span>
-                                        </li>
-                                    ))}
-                            </ul>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
             </Tabs>
         </div>
     );
 }
-
-
