@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartData } from '@/services/subservice';
 import RealTimeChart from '@/components/founder/analytics/charts/RealTimeChart';
@@ -15,6 +16,10 @@ const AnalyticsPage = () => {
         to: new Date(),
     });
     const [activeTab, setActiveTab] = useState('tvl');
+
+    const [level, setLevel] = useState('aggregate'); // State for level selector
+    const [questType, setQuestType] = useState(''); // State for quest type selector
+    const [individualQuest, setIndividualQuest] = useState(''); // State for individual quest selector
 
     useEffect(() => {
         const subscription = pubSubService.subscribeToChartData((data) => {
@@ -30,8 +35,51 @@ const AnalyticsPage = () => {
     const latestData = chartData[chartData.length - 1] || { tvl: 0, dau: 0, trx: 0 };
 
     return (
+
         <div className="container mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
+            {/* Button Group for Level Selection */}
+            <div className="mb-6 flex space-x-4">
+                {['aggregate', 'quest-type-aggregate', 'individual-quest'].map((option) => (
+                    <button
+                        key={option}
+                        onClick={() => setLevel(option)}
+                        className={`px-4 py-2 font-semibold rounded ${
+                            level === option ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                        }`}
+                    >
+                        {option.replace(/-/g, ' ')}
+                    </button>
+                ))}
+            </div>
+            {/* Conditional Quest Type Selector */}
+            {level === 'quest-type-aggregate' && (
+                <div className="mb-6">
+                    <Select value={questType} onValueChange={setQuestType}>
+                        <SelectTrigger><SelectValue placeholder="Select Quest Type" /></SelectTrigger>
+                        <SelectContent>
+                            {/* These values can be replaced with actual quest types */}
+                            <SelectItem value="type1">Type 1</SelectItem>
+                            <SelectItem value="type2">Type 2</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
+            {/* Conditional Individual Quest Selector */}
+            {level === 'individual-quest' && (
+                <div className="mb-6">
+                    <Select value={individualQuest} onValueChange={setIndividualQuest}>
+                        <SelectTrigger><SelectValue placeholder="Select Individual Quest" /></SelectTrigger>
+                        <SelectContent>
+                            {/* These values can be replaced with actual individual quests */}
+                            <SelectItem value="quest1">Quest 1</SelectItem>
+                            <SelectItem value="quest2">Quest 2</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
             <div className="mb-6">
                 <RealTimeChart />
             </div>
