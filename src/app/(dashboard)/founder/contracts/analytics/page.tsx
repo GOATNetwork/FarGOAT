@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, PieChart, Pie, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartData } from '@/services/subservice';
 import RealTimeChart from '@/components/founder/analytics/charts/RealTimeChart';
 import { pubSubService } from '@/services/pubsub.service';
@@ -28,6 +28,9 @@ const AnalyticsPage = () => {
     }, []);
 
     const latestData = chartData[chartData.length - 1] || { tvl: 0, dau: 0, trx: 0 };
+    const previousData = chartData[chartData.length - 2] || { tvl: 0, dau: 0, trx: 0 };
+
+    const calculateGrowth = (current: number, previous: number) => ((current - previous) / previous) * 100;
 
     return (
         <div className="container mx-auto p-6">
@@ -37,9 +40,10 @@ const AnalyticsPage = () => {
             </div>
             <div className="grid gap-6 lg:grid-cols-4">
                 <div className="space-y-6 lg:col-span-1">
-                    <MetricCard title="Total Value Locked (TVL)" value={`$${((latestData?.tvl ?? 0) / 1000000).toFixed(2)}M`} change="+10%" />
-                    <MetricCard title="Daily Active Users (DAU)" value={latestData.dau.toLocaleString()} change="+5%" />
-                    <MetricCard title="Daily Transactions (TRX)" value={latestData.trx.toLocaleString()} change="+7%" />
+                    <MetricCard title="Total Value Locked (TVL)" value={`$${((latestData?.tvl ?? 0) / 1000000).toFixed(2)}M`} change={`${calculateGrowth(latestData.tvl, previousData.tvl).toFixed(2)}%`} />
+                    <MetricCard title="Daily Active Users (DAU)" value={latestData.dau.toLocaleString()} change={`${calculateGrowth(latestData.dau, previousData.dau).toFixed(2)}%`} />
+                    <MetricCard title="Daily Transactions (TRX)" value={latestData.trx.toLocaleString()} change={`${calculateGrowth(latestData.trx, previousData.trx).toFixed(2)}%`} />
+                    <MetricCard title="Average Transaction Value (ATV)" value={`$${(latestData.tvl / latestData.trx).toFixed(2)}`} change="N/A" />
                 </div>
                 <Card className="lg:col-span-3 bg-gradient-to-r from-green-400 to-blue-500 shadow-lg transform hover:scale-105 transition-all">
                     <CardHeader>
@@ -99,6 +103,28 @@ const AnalyticsPage = () => {
                                 </ResponsiveContainer>
                             )}
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* New Pie chart for distribution analytics */}
+                <Card className="lg:col-span-3 bg-gradient-to-r from-purple-400 to-pink-500 shadow-lg transform hover:scale-105 transition-all">
+                    <CardHeader>
+                        <CardTitle className="text-white">Metric Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={270}>
+                            <PieChart>
+                                <Pie
+                                    data={chartData}
+                                    dataKey="dau"
+                                    nameKey="timestamp"
+                                    outerRadius={100}
+                                    fill="#8884d8"
+                                    label
+                                />
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             </div>
