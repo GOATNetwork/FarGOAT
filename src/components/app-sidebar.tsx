@@ -81,7 +81,7 @@ const data = {
         },
         {
             title: 'Feedback',
-            url: '#',
+            url: '/ecosystem/feedback',
             icon: Send,
         },
     ],
