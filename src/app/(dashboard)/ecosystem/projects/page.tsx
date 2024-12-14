@@ -96,12 +96,20 @@ const projects = [
         totalPointsAllocated: 100000,
         questCompletionRate: 75,
     },
+    
     // Add more mock projects here...
 ];
 
 export default function EcosystemPage() {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter projects based on the search query
+    const filteredProjects = projects.filter(project =>
+        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -110,7 +118,13 @@ export default function EcosystemPage() {
                 <div className="flex items-center space-x-4 mb-4">
                     <div className="relative flex-grow">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <Input type="search" placeholder="Search projects..." className="pl-10" />
+                        <Input
+                            type="search"
+                            placeholder="Search projects..."
+                            className="pl-10"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+                        />
                     </div>
                     <Select defaultValue="latest">
                         <SelectTrigger className="w-[180px]">
@@ -136,7 +150,7 @@ export default function EcosystemPage() {
             </header>
 
             <div className={`grid gap-6 ${viewMode === 'grid' ? 'sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-                {projects.map((project) => (
+                {filteredProjects.map((project) => (
                     <ProjectCard key={project.id} project={project} onSelect={() => setSelectedProject(project)} />
                 ))}
             </div>
@@ -185,22 +199,14 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
                 </div>
                 <div className="flex justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
-                        <TrendingUp className="mr-1 h-4 w-4" />${project.tvl.toLocaleString()}
+                        <TrendingUp className="mr-2 h-4 w-4 text-gray-500" />
+                        <span>{project.tvl}</span>
                     </div>
                     <div className="flex items-center">
-                        <Users className="mr-1 h-4 w-4" />
-                        {project.users24h.toLocaleString()}
-                    </div>
-                    <div className="flex items-center">
-                        <Target className="mr-1 h-4 w-4" />
-                        {project.totalQuests}
+                        <Users className="mr-2 h-4 w-4 text-gray-500" />
+                        <span>{project.users24h} Users</span>
                     </div>
                 </div>
-                {project.activeQuests && (
-                    <Badge variant="secondary" className="mt-4">
-                        Active Quests
-                    </Badge>
-                )}
             </CardContent>
         </Card>
     );
@@ -208,6 +214,7 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
 
 function ProjectModal({ project, onClose }: { project: (typeof projects)[0]; onClose: () => void }) {
     return (
+
         <Dialog open={true} onOpenChange={() => onClose()}>
             <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden">
                 <ScrollArea className="h-full max-h-[90vh]">
@@ -388,8 +395,32 @@ function ProjectModal({ project, onClose }: { project: (typeof projects)[0]; onC
                                 </div>
                             </div>
                         </div>
+
                     </div>
-                </ScrollArea>
+                </div>
+                <div className="flex space-x-4">
+                    <a href={project.website} target="_blank" className="text-blue-500">
+                        <ExternalLink className="mr-2 h-5 w-5" />
+                        Website
+                    </a>
+                    <a href={project.github} target="_blank" className="text-gray-800">
+                        <Github className="mr-2 h-5 w-5" />
+                        GitHub
+                    </a>
+                    <a href={project.twitter} target="_blank" className="text-blue-400">
+                        <Twitter className="mr-2 h-5 w-5" />
+                        Twitter
+                    </a>
+                </div>
+                <Accordion>
+                    <AccordionItem value="details">
+                        <AccordionTrigger>Details</AccordionTrigger>
+                        <AccordionContent>
+                            <p>{project.description}</p>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+                <Progress value={project.questCompletionRate} />
             </DialogContent>
         </Dialog>
     );
