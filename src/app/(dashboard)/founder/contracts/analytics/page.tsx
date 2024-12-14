@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Line, LineChart, PieChart, Pie, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChartData } from '@/services/subservice';
 import RealTimeChart from '@/components/founder/analytics/charts/RealTimeChart';
 import { pubSubService } from '@/services/pubsub.service';
@@ -28,23 +28,27 @@ const AnalyticsPage = () => {
     }, []);
 
     const latestData = chartData[chartData.length - 1] || { tvl: 0, dau: 0, trx: 0 };
+    const previousData = chartData[chartData.length - 2] || { tvl: 0, dau: 0, trx: 0 };
+
+    const calculateGrowth = (current: number, previous: number) => ((current - previous) / previous) * 100;
 
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Analytics Dashboard</h1>
             <div className="mb-6">
                 <RealTimeChart />
             </div>
             <div className="grid gap-6 lg:grid-cols-4">
                 <div className="space-y-6 lg:col-span-1">
-                    <MetricCard title="Total Value Locked (TVL)" value={`$${((latestData?.tvl ?? 0) / 1000000).toFixed(2)}M`} change="+10%" />
-                    <MetricCard title="Daily Active Users (DAU)" value={latestData.dau.toLocaleString()} change="+5%" />
-                    <MetricCard title="Daily Transactions (TRX)" value={latestData.trx.toLocaleString()} change="+7%" />
+                    <MetricCard title="Total Value Locked (TVL)" value={`$${((latestData?.tvl ?? 0) / 1000000).toFixed(2)}M`} change={`${calculateGrowth(latestData.tvl, previousData.tvl).toFixed(2)}%`} />
+                    <MetricCard title="Daily Active Users (DAU)" value={latestData.dau.toLocaleString()} change={`${calculateGrowth(latestData.dau, previousData.dau).toFixed(2)}%`} />
+                    <MetricCard title="Daily Transactions (TRX)" value={latestData.trx.toLocaleString()} change={`${calculateGrowth(latestData.trx, previousData.trx).toFixed(2)}%`} />
+                    <MetricCard title="Average Transaction Value (ATV)" value={`$${(latestData.tvl / latestData.trx).toFixed(2)}`} change="N/A" />
                 </div>
-                <Card className="lg:col-span-3">
+                <Card className="lg:col-span-3 bg-gradient-to-r from-green-400 to-blue-500 shadow-lg transform hover:scale-105 transition-all">
                     <CardHeader>
-                        <CardTitle>{getChartTitle(activeTab)}</CardTitle>
-                        <CardDescription>{getChartDescription(activeTab)}</CardDescription>
+                        <CardTitle className="text-white">{getChartTitle(activeTab)}</CardTitle>
+                        <CardDescription className="text-white">{getChartDescription(activeTab)}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
@@ -57,42 +61,70 @@ const AnalyticsPage = () => {
                         <div className="h-[270px]">
                             {activeTab === 'dau' ? (
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={chartData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
+                                    <BarChart data={chartData} barSize={20} margin={{ top: 5, right: 10, left: 10, bottom: 5 }} >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                                         <XAxis 
                                             dataKey="timestamp" 
                                             tickFormatter={(tick) => new Date(tick * 1000).toLocaleDateString()} 
+                                            tick={{ fill: '#fff' }}
                                         />
-                                        <YAxis />
+                                        <YAxis tick={{ fill: '#fff' }} />
                                         <Tooltip 
                                             labelFormatter={(label) => new Date(label * 1000).toLocaleString()} 
+                                            contentStyle={{ backgroundColor: '#333', color: '#fff' }}
                                         />
-                                        <Bar dataKey="dau" fill="#FFFF00" /> {/* Yellow bars */}
+                                        <Bar dataKey="dau" fill="rgb(255, 233, 48)" animationDuration={500} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             ) : (
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={chartData}>
-                                        <CartesianGrid strokeDasharray="3 3" />
+                                    <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }} >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
                                         <XAxis 
                                             dataKey="timestamp" 
                                             tickFormatter={(tick) => new Date(tick * 1000).toLocaleDateString()} 
+                                            tick={{ fill: '#fff' }}
                                         />
-                                        <YAxis />
+                                        <YAxis tick={{ fill: '#fff' }} />
                                         <Tooltip 
                                             labelFormatter={(label) => new Date(label * 1000).toLocaleString()} 
+                                            contentStyle={{ backgroundColor: '#333', color: '#fff' }}
                                         />
                                         <Line
                                             type="monotone"
                                             dataKey={activeTab}
-                                            stroke="#FFFF00" // Yellow line
-                                            strokeWidth={2}
-                                            dot={{ fill: 'red', stroke: 'red', r: 4 }} // Red points
+                                            stroke={getLineColor(activeTab)}
+                                            strokeWidth={3}
+                                            dot={{ fill: 'white', stroke: getLineColor(activeTab), r: 6 }}
+                                            activeDot={{ r: 8 }}
+                                            animationDuration={1000}
                                         />
                                     </LineChart>
                                 </ResponsiveContainer>
                             )}
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* New Pie chart for distribution analytics */}
+                <Card className="lg:col-span-3 bg-gradient-to-r from-purple-400 to-pink-500 shadow-lg transform hover:scale-105 transition-all">
+                    <CardHeader>
+                        <CardTitle className="text-white">Metric Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={270}>
+                            <PieChart>
+                                <Pie
+                                    data={chartData}
+                                    dataKey="dau"
+                                    nameKey="timestamp"
+                                    outerRadius={100}
+                                    fill="#8884d8"
+                                    label
+                                />
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             </div>
@@ -102,12 +134,12 @@ const AnalyticsPage = () => {
 
 function MetricCard({ title, value, change }: { title: string; value: string; change: string }) {
     return (
-        <Card>
+        <Card className="transform transition-transform hover:scale-105">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-bold">{value}</div>
+                <div className="text-2xl font-bold text-gray-800">{value}</div>
                 <p className={`text-xs ${change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>{change}</p>
             </CardContent>
         </Card>
@@ -137,6 +169,19 @@ function getChartDescription(tab: string) {
             return 'Historical transaction data over time';
         default:
             return '';
+    }
+}
+
+function getLineColor(tab: string) {
+    switch (tab) {
+        case 'tvl':
+            return '#4CAF50'; // Green for TVL
+        case 'dau':
+            return '#FF5722'; // Red for DAU
+        case 'trx':
+            return '#2196F3'; // Blue for TRX
+        default:
+            return '#888';
     }
 }
 

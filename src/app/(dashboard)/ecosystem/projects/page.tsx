@@ -105,14 +105,14 @@ export default function EcosystemPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <header className="mb-8">
-                <h1 className="text-4xl font-bold mb-4">GOAT Network Ecosystem</h1>
+                <h1 className="text-4xl font-bold mb-4 animate__animated animate__fadeIn">GOAT Network Ecosystem</h1>
                 <div className="flex items-center space-x-4 mb-4">
                     <div className="relative flex-grow">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <Input type="search" placeholder="Search projects..." className="pl-10" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-all duration-300 hover:text-primary" />
+                        <Input type="search" placeholder="Search projects..." className="pl-10 transition-all duration-300 focus:ring-primary" />
                     </div>
                     <Select defaultValue="latest">
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className="w-[180px] transition-all duration-300 focus:ring-primary">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
@@ -121,13 +121,13 @@ export default function EcosystemPage() {
                             <SelectItem value="activity">Activity</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" size="icon" onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
+                    <Button variant="outline" size="icon" onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')} className="transition-all duration-300 hover:bg-gray-200">
                         {viewMode === 'grid' ? <List /> : <Grid />}
                     </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {['DeFi', 'GameFi', 'NFT', 'Lending', 'DEX'].map((tag) => (
-                        <Badge key={tag} variant="secondary">
+                        <Badge key={tag} variant="secondary" className="transition-all duration-300 hover:bg-gray-200">
                             {tag}
                         </Badge>
                     ))}
@@ -148,7 +148,7 @@ export default function EcosystemPage() {
 function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onSelect: () => void }) {
     return (
         <Card
-            className="overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
+            className="overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-105"
             style={{
                 borderImage: `linear-gradient(to right, ${project.category === 'DeFi' ? '#6366f1, #8b5cf6' : '#10b981, #3b82f6'}) 1`,
                 borderImageSlice: 1,
@@ -158,7 +158,7 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
             onClick={onSelect}
         >
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                <Avatar className="h-16 w-16">
+                <Avatar className="h-16 w-16 transition-all duration-300 transform hover:scale-110">
                     <AvatarImage src={project.logo} alt={project.name} />
                     <AvatarFallback>{project.name[0]}</AvatarFallback>
                 </Avatar>
@@ -166,7 +166,7 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
                     <CardTitle className="flex items-center">
                         {project.name}
                         {project.verified && (
-                            <Badge variant="secondary" className="ml-2">
+                            <Badge variant="secondary" className="ml-2 transition-all duration-300 animate__animated animate__fadeIn">
                                 Verified
                             </Badge>
                         )}
@@ -177,26 +177,26 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
             <CardContent>
                 <div className="flex flex-wrap gap-2 mb-4">
                     {project.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="outline">
+                        <Badge key={tag} variant="outline" className="transition-all duration-300 hover:bg-gray-200">
                             {tag}
                         </Badge>
                     ))}
                 </div>
                 <div className="flex justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
-                        <TrendingUp className="mr-1 h-4 w-4" />${project.tvl.toLocaleString()}
+                        <TrendingUp className="mr-1 h-4 w-4 transition-all duration-300 hover:text-primary" />${project.tvl.toLocaleString()}
                     </div>
                     <div className="flex items-center">
-                        <Users className="mr-1 h-4 w-4" />
+                        <Users className="mr-1 h-4 w-4 transition-all duration-300 hover:text-primary" />
                         {project.users24h.toLocaleString()}
                     </div>
                     <div className="flex items-center">
-                        <Target className="mr-1 h-4 w-4" />
+                        <Target className="mr-1 h-4 w-4 transition-all duration-300 hover:text-primary" />
                         {project.totalQuests}
                     </div>
                 </div>
                 {project.activeQuests && (
-                    <Badge variant="secondary" className="mt-4">
+                    <Badge variant="secondary" className="mt-4 transition-all duration-300 animate__animated animate__fadeIn">
                         Active Quests
                     </Badge>
                 )}
@@ -208,25 +208,22 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
 function ProjectModal({ project, onClose }: { project: (typeof projects)[0]; onClose: () => void }) {
     return (
         <Dialog open={true} onOpenChange={() => onClose()}>
-            <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden">
+            <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden transition-all duration-300">
                 <ScrollArea className="h-full max-h-[90vh]">
                     <div className="p-6">
                         <DialogHeader>
                             <DialogTitle className="sr-only">{project.name}</DialogTitle>
                         </DialogHeader>
                         
-                        {/* Banner and Avatar Section */}
                         <div className="relative h-[200px] sm:h-[300px] lg:h-[400px] -mt-6 -mx-6 mb-6">
-                            <img src={project.bannerImage} alt={project.name} className="w-full h-full object-cover" />
-                            <Avatar className="absolute -bottom-8 left-6 h-20 w-20 sm:h-24 sm:w-24 lg:h-32 lg:w-32 border-4 border-background">
+                            <img src={project.bannerImage} alt={project.name} className="w-full h-full object-cover transition-all duration-500 ease-in-out" />
+                            <Avatar className="absolute -bottom-8 left-6 h-20 w-20 sm:h-24 sm:w-24 lg:h-32 lg:w-32 border-4 border-background transform transition-transform duration-500 ease-in-out">
                                 <AvatarImage src={project.logo} alt={project.name} />
                                 <AvatarFallback>{project.name[0]}</AvatarFallback>
                             </Avatar>
                         </div>
-
-                        {/* Main Content Grid */}
+                        
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                            {/* Left Column */}
                             <div className="space-y-6">
                                 <div>
                                     <h2 className="text-3xl font-bold flex items-center">
@@ -258,129 +255,6 @@ function ProjectModal({ project, onClose }: { project: (typeof projects)[0]; onC
                                 <div>
                                     <h3 className="font-semibold mb-2">Description</h3>
                                     <p className="text-muted-foreground">{project.description}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <ExternalLink className="mr-2 h-4 w-4" />
-                                        Website
-                                    </Button>
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <Github className="mr-2 h-4 w-4" />
-                                        GitHub
-                                    </Button>
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <Twitter className="mr-2 h-4 w-4" />
-                                        Twitter
-                                    </Button>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold mb-2">Contract Address</h3>
-                                    <Input value={project.contractAddress} readOnly />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Daily Active Users</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-2xl font-bold">{project.dailyActiveUsers.toLocaleString()}</div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Total Points Allocated</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-2xl font-bold">{project.totalPointsAllocated.toLocaleString()}</div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Quest Completion Rate</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-2xl font-bold">{project.questCompletionRate}%</div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Total TVL</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <ResponsiveContainer width="100%" height={100}>
-                                                <LineChart data={tvlData}>
-                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                    <XAxis dataKey="name" />
-                                                    <YAxis />
-                                                    <Tooltip />
-                                                    <Line type="monotone" dataKey="tvl" stroke="#8884d8" />
-                                                </LineChart>
-                                            </ResponsiveContainer>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            </div>
-
-                            {/* Right Column - Now directly scrollable */}
-                            <div className="md:col-span-2 space-y-6">
-                                <div>
-                                    <h3 className="text-xl font-semibold mb-4">Active Quests</h3>
-                                    <Accordion type="single" collapsible className="w-full">
-                                        {['TVL', 'TRX', 'DAU'].map((category) => (
-                                            <AccordionItem value={category} key={category}>
-                                                <AccordionTrigger>{category} Quests</AccordionTrigger>
-                                                <AccordionContent>
-                                                    <div className="space-y-4">
-                                                        {[1, 2, 3].map((quest) => (
-                                                            <Card key={quest}>
-                                                                <CardHeader className="pb-2">
-                                                                    <CardTitle className="text-lg">
-                                                                        {category} Quest {quest}
-                                                                        <Badge className="ml-2">100 Points</Badge>
-                                                                    </CardTitle>
-                                                                </CardHeader>
-                                                                <CardContent>
-                                                                    <Progress value={33} className="mb-2" />
-                                                                    <div className="flex justify-between text-sm text-muted-foreground">
-                                                                        <span>Progress: 33%</span>
-                                                                        <span>Time remaining: 2d 5h</span>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
-                                                        ))}
-                                                    </div>
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        ))}
-                                    </Accordion>
-                                </div>
-
-                                <div>
-                                    <h3 className="text-xl font-semibold mb-4">Project Activity</h3>
-                                    <div className="space-y-4">
-                                        {[1, 2, 3, 4, 5].map((activity) => (
-                                            <Card key={activity}>
-                                                <CardHeader>
-                                                    <CardTitle className="text-lg">Activity {activity}</CardTitle>
-                                                    <CardDescription>Recent update or achievement</CardDescription>
-                                                </CardHeader>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="pb-6">
-                                    <h3 className="text-xl font-semibold mb-4">Similar Projects</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {[1, 2, 3, 4].map((similarProject) => (
-                                            <Card key={similarProject}>
-                                                <CardHeader>
-                                                    <CardTitle>Similar Project {similarProject}</CardTitle>
-                                                    <CardDescription>Brief description</CardDescription>
-                                                </CardHeader>
-                                            </Card>
-                                        ))}
-                                    </div>
                                 </div>
                             </div>
                         </div>
