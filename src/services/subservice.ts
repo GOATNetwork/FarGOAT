@@ -5,6 +5,7 @@ export interface ChartData {
     tvl: number;
     dau: number;
     trx: number;
+    dtv?: number;
 }
 
 export interface TableData {
