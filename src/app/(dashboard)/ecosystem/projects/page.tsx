@@ -95,12 +95,20 @@ const projects = [
         totalPointsAllocated: 100000,
         questCompletionRate: 75,
     },
+    
     // Add more mock projects here...
 ];
 
 export default function EcosystemPage() {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter projects based on the search query
+    const filteredProjects = projects.filter(project =>
+        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -109,7 +117,13 @@ export default function EcosystemPage() {
                 <div className="flex items-center space-x-4 mb-4">
                     <div className="relative flex-grow">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <Input type="search" placeholder="Search projects..." className="pl-10" />
+                        <Input
+                            type="search"
+                            placeholder="Search projects..."
+                            className="pl-10"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+                        />
                     </div>
                     <Select defaultValue="latest">
                         <SelectTrigger className="w-[180px]">
@@ -135,7 +149,7 @@ export default function EcosystemPage() {
             </header>
 
             <div className={`grid gap-6 ${viewMode === 'grid' ? 'sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-                {projects.map((project) => (
+                {filteredProjects.map((project) => (
                     <ProjectCard key={project.id} project={project} onSelect={() => setSelectedProject(project)} />
                 ))}
             </div>
@@ -184,22 +198,14 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
                 </div>
                 <div className="flex justify-between text-sm text-muted-foreground">
                     <div className="flex items-center">
-                        <TrendingUp className="mr-1 h-4 w-4" />${project.tvl.toLocaleString()}
+                        <TrendingUp className="mr-2 h-4 w-4 text-gray-500" />
+                        <span>{project.tvl}</span>
                     </div>
                     <div className="flex items-center">
-                        <Users className="mr-1 h-4 w-4" />
-                        {project.users24h.toLocaleString()}
-                    </div>
-                    <div className="flex items-center">
-                        <Target className="mr-1 h-4 w-4" />
-                        {project.totalQuests}
+                        <Users className="mr-2 h-4 w-4 text-gray-500" />
+                        <span>{project.users24h} Users</span>
                     </div>
                 </div>
-                {project.activeQuests && (
-                    <Badge variant="secondary" className="mt-4">
-                        Active Quests
-                    </Badge>
-                )}
             </CardContent>
         </Card>
     );
@@ -207,185 +213,45 @@ function ProjectCard({ project, onSelect }: { project: (typeof projects)[0]; onS
 
 function ProjectModal({ project, onClose }: { project: (typeof projects)[0]; onClose: () => void }) {
     return (
-        <Dialog open={true} onOpenChange={() => onClose()}>
-            <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden">
-                <ScrollArea className="h-full max-h-[90vh]">
-                    <div className="p-6">
-                        <DialogHeader>
-                            <DialogTitle className="sr-only">{project.name}</DialogTitle>
-                        </DialogHeader>
-                        
-                        {/* Banner and Avatar Section */}
-                        <div className="relative h-[200px] sm:h-[300px] lg:h-[400px] -mt-6 -mx-6 mb-6">
-                            <img src={project.bannerImage} alt={project.name} className="w-full h-full object-cover" />
-                            <Avatar className="absolute -bottom-8 left-6 h-20 w-20 sm:h-24 sm:w-24 lg:h-32 lg:w-32 border-4 border-background">
-                                <AvatarImage src={project.logo} alt={project.name} />
-                                <AvatarFallback>{project.name[0]}</AvatarFallback>
-                            </Avatar>
-                        </div>
-
-                        {/* Main Content Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-                            {/* Left Column */}
-                            <div className="space-y-6">
-                                <div>
-                                    <h2 className="text-3xl font-bold flex items-center">
-                                        {project.name}
-                                        {project.verified && (
-                                            <Badge variant="secondary" className="ml-2">
-                                                Verified
-                                            </Badge>
-                                        )}
-                                    </h2>
-                                    <p className="text-muted-foreground flex items-center mt-2">
-                                        <Avatar className="h-6 w-6 mr-2">
-                                            <AvatarImage src={project.founderAvatar} alt={project.founder} />
-                                            <AvatarFallback>{project.founder[0]}</AvatarFallback>
-                                        </Avatar>
-                                        {project.founder}
-                                    </p>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold mb-2">Tags</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {project.tags.map((tag) => (
-                                            <Badge key={tag} variant="outline">
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold mb-2">Description</h3>
-                                    <p className="text-muted-foreground">{project.description}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <ExternalLink className="mr-2 h-4 w-4" />
-                                        Website
-                                    </Button>
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <Github className="mr-2 h-4 w-4" />
-                                        GitHub
-                                    </Button>
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <Twitter className="mr-2 h-4 w-4" />
-                                        Twitter
-                                    </Button>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold mb-2">Contract Address</h3>
-                                    <Input value={project.contractAddress} readOnly />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Daily Active Users</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-2xl font-bold">{project.dailyActiveUsers.toLocaleString()}</div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Total Points Allocated</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-2xl font-bold">{project.totalPointsAllocated.toLocaleString()}</div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Quest Completion Rate</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="text-2xl font-bold">{project.questCompletionRate}%</div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium">Total TVL</CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <ResponsiveContainer width="100%" height={100}>
-                                                <LineChart data={tvlData}>
-                                                    <CartesianGrid strokeDasharray="3 3" />
-                                                    <XAxis dataKey="name" />
-                                                    <YAxis />
-                                                    <Tooltip />
-                                                    <Line type="monotone" dataKey="tvl" stroke="#8884d8" />
-                                                </LineChart>
-                                            </ResponsiveContainer>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            </div>
-
-                            {/* Right Column - Now directly scrollable */}
-                            <div className="md:col-span-2 space-y-6">
-                                <div>
-                                    <h3 className="text-xl font-semibold mb-4">Active Quests</h3>
-                                    <Accordion type="single" collapsible className="w-full">
-                                        {['TVL', 'TRX', 'DAU'].map((category) => (
-                                            <AccordionItem value={category} key={category}>
-                                                <AccordionTrigger>{category} Quests</AccordionTrigger>
-                                                <AccordionContent>
-                                                    <div className="space-y-4">
-                                                        {[1, 2, 3].map((quest) => (
-                                                            <Card key={quest}>
-                                                                <CardHeader className="pb-2">
-                                                                    <CardTitle className="text-lg">
-                                                                        {category} Quest {quest}
-                                                                        <Badge className="ml-2">100 Points</Badge>
-                                                                    </CardTitle>
-                                                                </CardHeader>
-                                                                <CardContent>
-                                                                    <Progress value={33} className="mb-2" />
-                                                                    <div className="flex justify-between text-sm text-muted-foreground">
-                                                                        <span>Progress: 33%</span>
-                                                                        <span>Time remaining: 2d 5h</span>
-                                                                    </div>
-                                                                </CardContent>
-                                                            </Card>
-                                                        ))}
-                                                    </div>
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        ))}
-                                    </Accordion>
-                                </div>
-
-                                <div>
-                                    <h3 className="text-xl font-semibold mb-4">Project Activity</h3>
-                                    <div className="space-y-4">
-                                        {[1, 2, 3, 4, 5].map((activity) => (
-                                            <Card key={activity}>
-                                                <CardHeader>
-                                                    <CardTitle className="text-lg">Activity {activity}</CardTitle>
-                                                    <CardDescription>Recent update or achievement</CardDescription>
-                                                </CardHeader>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="pb-6">
-                                    <h3 className="text-xl font-semibold mb-4">Similar Projects</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {[1, 2, 3, 4].map((similarProject) => (
-                                            <Card key={similarProject}>
-                                                <CardHeader>
-                                                    <CardTitle>Similar Project {similarProject}</CardTitle>
-                                                    <CardDescription>Brief description</CardDescription>
-                                                </CardHeader>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <Dialog open onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                    <DialogTitle>{project.name}</DialogTitle>
+                </DialogHeader>
+                <div className="relative mb-4">
+                    <img src={project.bannerImage} alt="banner" className="w-full h-56 object-cover rounded-lg" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50" />
+                    <div className="absolute top-4 left-4 text-white">
+                        <Avatar className="h-16 w-16">
+                            <AvatarImage src={project.founderAvatar} alt={project.founder} />
+                            <AvatarFallback>{project.founder[0]}</AvatarFallback>
+                        </Avatar>
+                        <h2 className="text-xl font-semibold">{project.founder}</h2>
                     </div>
-                </ScrollArea>
+                </div>
+                <div className="flex space-x-4">
+                    <a href={project.website} target="_blank" className="text-blue-500">
+                        <ExternalLink className="mr-2 h-5 w-5" />
+                        Website
+                    </a>
+                    <a href={project.github} target="_blank" className="text-gray-800">
+                        <Github className="mr-2 h-5 w-5" />
+                        GitHub
+                    </a>
+                    <a href={project.twitter} target="_blank" className="text-blue-400">
+                        <Twitter className="mr-2 h-5 w-5" />
+                        Twitter
+                    </a>
+                </div>
+                <Accordion>
+                    <AccordionItem value="details">
+                        <AccordionTrigger>Details</AccordionTrigger>
+                        <AccordionContent>
+                            <p>{project.description}</p>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+                <Progress value={project.questCompletionRate} />
             </DialogContent>
         </Dialog>
     );
