@@ -1,15 +1,15 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 
 const Page = () => {
   const [feedback, setFeedback] = useState('');
 
-  const handleFeedbackChange = (e:any) => {
+  const handleFeedbackChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setFeedback(e.target.value);
   };
 
-  const handleSubmit = (e:any) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Handle the feedback submission logic here
     alert('Feedback submitted: ' + feedback);
@@ -26,7 +26,7 @@ const Page = () => {
           value={feedback}
           onChange={handleFeedbackChange}
           placeholder="Write your feedback here..."
-          rows="6"
+          rows={6}
           className="w-full p-2 border border-gray-300 rounded-md mb-4"
         ></textarea>
 
